@@ -9,11 +9,16 @@
     .app-container {
 
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction: column;
+        /* flex-wrap: wrap; */
 
     }
 
+    .jugadores-container{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
     .container {
         width: 177px;
         border: 1px solid black;
@@ -117,7 +122,11 @@
     }
 
 
+.historial{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly   ;
+}
 
-
-
+    
 }

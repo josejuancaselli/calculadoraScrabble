@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./calculadora.css";
+import { Link } from "react-router-dom";
 
 const Calculadora = () => {
     const [jugadoresStorage, setJugadoresStorage] = useState(JSON.parse(localStorage.getItem("jugadores")) || []);
@@ -52,81 +53,101 @@ const Calculadora = () => {
         setPalabrasPorJugador({ ...palabrasPorJugador, [jugador.id]: e.target.value });
     }
 
+    const resetearJuego = () => {
+        // Limpiamos localStorage
+        localStorage.clear();
+        // Reseteamos los estados
+        setJugadoresStorage([]);
+        setBotonesClickeados({});
+        setPuntosPorJugador({});
+        setPalabrasPorJugador({});
+        setHistorial([]);
+        console.log("Juego reseteado.");
+    };
 
 
     return (
         <div className="app-container">
-            {
-                jugadoresStorage.map((doc, index) => {
-                    return (
-                        <div className="container" key={index}>
-                            <h2 className="nombre-jugador">{doc.nombre}</h2> {/* Mostrar nombre del jugador*/}
+            <div className="jugadores-container">
+                {
+                    jugadoresStorage.map((doc, index) => {
+                        return (
+                            <div className="container" key={index}>
+                                <h2 className="nombre-jugador">{doc.nombre}</h2> {/* Mostrar nombre del jugador*/}
 
-                            <input type="text"
-                                placeholder="Palabra"
-                                className="palabra"
-                                value={palabrasPorJugador[doc.id] || ""}
-                                onChange={(e) => { palabras(e, doc) }}
-                            /> {/* Capturar la palabra*/}
+                                <input type="text"
+                                    placeholder="Palabra"
+                                    className="palabra"
+                                    value={palabrasPorJugador[doc.id] || ""}
+                                    onChange={(e) => { palabras(e, doc) }}
+                                /> {/* Capturar la palabra*/}
 
-                            <p className="puntos-jugador">{doc.puntos}</p> {/* Mostrar puntos*/}
+                                <p className="puntos-jugador">{doc.puntos}</p> {/* Mostrar puntos*/}
 
-                            <div className="puntos-container">
-                                <input
-                                    type="text"
-                                    placeholder=""
-                                    value={puntosPorJugador[doc.id] || ""}
-                                    onChange={(e) => { puntosJugador(e, doc); }}
-                                    className="puntos-palabra"
-                                />
-                                <input type="checkbox"
-                                    className="premio"
-                                    checked={premioPorJugador[doc.id] || false}
-                                    onChange={(e) => manejarCheckbox(doc.id, e.target.checked)}
-                                />
+                                <div className="puntos-container">
+                                    <input
+                                        type="text"
+                                        placeholder=""
+                                        value={puntosPorJugador[doc.id] || ""}
+                                        onChange={(e) => { puntosJugador(e, doc); }}
+                                        className="puntos-palabra"
+                                    />
+                                    <input type="checkbox"
+                                        className="premio"
+                                        checked={premioPorJugador[doc.id] || false}
+                                        onChange={(e) => manejarCheckbox(doc.id, e.target.checked)}
+                                    />
+                                </div>
+
+                                <div className="cambio-fichas-container">
+                                    {[0, 1, 2].map((botonId) => {
+                                        const botonYaClickeado = botonesClickeados[doc.id] && botonesClickeados[doc.id].includes(botonId)
+                                        return (
+                                            <button
+                                                key={botonId}
+                                                className="cambio-fichas"
+                                                disabled={botonYaClickeado}
+                                                onClick={() => { botonCambio(doc.id, botonId); }}
+                                                style={{ backgroundColor: botonYaClickeado ? "red" : "green", }}
+                                            >
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
+                        );
+                    })
+                }
+            </div>
 
-                            <div className="cambio-fichas-container">
-                                {[0, 1, 2].map((botonId) => {
-                                    const botonYaClickeado = botonesClickeados[doc.id] && botonesClickeados[doc.id].includes(botonId)
-                                    return (
-                                        <button
-                                            key={botonId}
-                                            className="cambio-fichas"
-                                            disabled={botonYaClickeado}
-                                            onClick={() => { botonCambio(doc.id, botonId); }}
-                                            style={{ backgroundColor: botonYaClickeado ? "red" : "green", }}
-                                        >
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    );
-                })
-            }
             <button onClick={terminarTurno}>Terminar Turno</button>
 
-            <div>
+
+            <div className="historial">
                 {jugadoresStorage.map((jugador) => {
-                    
+
                     const historialJugador = historial.filter((entry) => entry.nombre === jugador.nombre);
                     if (historialJugador.length === 0) return null; // Si no hay historial para este jugador, no mostramos nada
                     return (
                         <div key={jugador.id}>
                             <h5>{jugador.nombre}</h5> {/* Nombre del jugador, se renderiza solo una vez */}
                             {historialJugador.map((turno, index) => (
-                                <div key={index}>
-                                    <h6>-</h6>
-                                    <p>Palabra: {turno.palabra}</p>
-                                    <p>Puntos: {turno.puntos}</p>
-                                    {turno.premio && <p>Premio</p>}
+                                <div key={index} className="detalle-historial">
+                                    <h6>--------</h6>
+                                    <div className="punto-palabra">
+                                        <p>Palabra: {turno.palabra}</p>
+                                        <p>Puntos: {turno.puntos}</p>
+                                        {turno.premio && <p>Premio</p>}
+                                    </div>
+
                                 </div>
                             ))}
                         </div>
                     );
                 })}
             </div>
+            <button onClick={resetearJuego}>Reiniciar Juego</button>
+            <Link to="/">Inicio</Link>
         </div>
     );
 };
