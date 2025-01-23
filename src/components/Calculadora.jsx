@@ -1,45 +1,58 @@
-import { useEffect, useState } from "react";
-import "./calculadora.css"
+import { useState } from "react";
+import "./calculadora.css";
 
 const Calculadora = () => {
+    const [jugadoresStorage, setJugadoresStorage] = useState(JSON.parse(localStorage.getItem("jugadores")) || []);
+    const [botonesClickeados, setBotonesClickeados] = useState({});
+    const [puntosPorJugador, setPuntosPorJugador] = useState({});
+    const [palabrasPorJugador, setPalabrasPorJugador] = useState({});
+    const [historial, setHistorial] = useState([]);
+    const [premioPorJugador, setPremioPorJugador] = useState({});
 
-    const jugadoresStorage = JSON.parse(localStorage.getItem("jugadores")) || []; // traigo a los jugadores del storage
-    const [puntoPalabra, setPuntoPalabra] = useState(0) //se guardan los puntos de la palabra
-    const [jugadorActualizado, setJugadorActualizado] = useState([])
-    const [disabled, setDisabled] = useState({})
-
-    const capturarPuntosPalabra = (e) => { //funcion para capturar los puntos de la palabra
-        setPuntoPalabra(e.target.value) // se actualiza los puntos de la palabra
-    }
-
-    const sumarPuntos = (id) => { // funcion para sumar los puntos
-
-        // const jugador =  jugadoresStorage.map((doc) => {return ( doc.id === id ? {...doc, puntos: parseInt(doc.puntos) + parseInt(puntoPalabra)}: doc)})
-        // setJugadorActualizado(jugador)
-        // setDisabled ({...disabled, [id]: true})
-        
-        const jugador = jugadoresStorage.find((el) => el.id === id)
-        if (jugador) {
-            const nuevosPuntos = { ...jugador, puntos: parseInt(puntoPalabra) + parseInt(jugador.puntos) }
-            setJugadorActualizado([...jugadorActualizado, nuevosPuntos])
-            setDisabled({ ...disabled, [id]: true })
-            console.log("sumando tengo", puntoPalabra)
-        }
-    }
+    const puntosJugador = (e, jugador) => {
+        setPuntosPorJugador({ ...puntosPorJugador, [jugador.id]: e.target.value });
+    };
 
     const terminarTurno = () => {
-        localStorage.setItem("jugadores", JSON.stringify(jugadorActualizado))
-        setJugadorActualizado([])
-        setDisabled({})
-        
+        const jugadoresActualizados = jugadoresStorage.map((jugador) => {
+            return ({ ...jugador, puntos: parseInt(jugador.puntos) + parseInt(puntosPorJugador[jugador.id] || 0), });
+        });
+
+        setJugadoresStorage(jugadoresActualizados);
+        localStorage.setItem("jugadores", JSON.stringify(jugadoresActualizados));
+
+        const nuevoHistorial = jugadoresStorage.map((jugador) => (
+            {
+                nombre: jugador.nombre,
+                puntos: parseInt(puntosPorJugador[jugador.id] || 0),
+                palabra: palabrasPorJugador[jugador.id] || "",
+                premio: premioPorJugador[jugador.id] || false,
+            }
+        ))
+
+        setHistorial([...historial, ...nuevoHistorial]);
+        setPuntosPorJugador({});
+        setPalabrasPorJugador({});
+        setPremioPorJugador({});
+
+    };
+
+    const botonCambio = (jugadorId, botonId) => {
+        const botonesDelJugador = botonesClickeados[jugadorId] || [];
+        if (!botonesDelJugador.includes(botonId)) {
+            setBotonesClickeados({ ...botonesClickeados, [jugadorId]: [...botonesDelJugador, botonId], });
+        }
+    };
+
+    const manejarCheckbox = (jugadorId, isChecked) => {
+        setPremioPorJugador({ ...premioPorJugador, [jugadorId]: isChecked });
+    };
+
+    const palabras = (e, jugador) => {
+        setPalabrasPorJugador({ ...palabrasPorJugador, [jugador.id]: e.target.value });
     }
 
-    const deshacerPuntos = (id) => {
 
-        setJugadorActualizado(jugadoresStorage)
-        setDisabled(true)
-
-    }
 
     return (
         <div className="app-container">
@@ -47,40 +60,75 @@ const Calculadora = () => {
                 jugadoresStorage.map((doc, index) => {
                     return (
                         <div className="container" key={index}>
+                            <h2 className="nombre-jugador">{doc.nombre}</h2> {/* Mostrar nombre del jugador*/}
 
-                            <h2 className="nombre-jugador">{doc.nombre}</h2> {/* mostrar nombre jugador*/}
+                            <input type="text"
+                                placeholder="Palabra"
+                                className="palabra"
+                                value={palabrasPorJugador[doc.id] || ""}
+                                onChange={(e) => { palabras(e, doc) }}
+                            /> {/* Capturar la palabra*/}
 
-                            <input type="text" placeholder="Palabra" className="palabra" /> {/* capturar la palabra*/}
-
-                            <p className="puntos-jugador" > {doc.puntos}  </p> {/* renderizar los puntos*/}
+                            <p className="puntos-jugador">{doc.puntos}</p> {/* Mostrar puntos*/}
 
                             <div className="puntos-container">
-                                <input type="text" placeholder="" className="puntos-palabra" onChange={capturarPuntosPalabra} /> {/* capturar puntos por la palabra*/}
-                                <input type="checkbox" className="premio" /> {/* volver a quedar deschekeado cuando termina el turno*/}
-                                <button className="sumar" disabled={disabled[doc.id]} onClick={() => { sumarPuntos(doc.id) }}>sumar</button> {/* sumar los puntos*/}
+                                <input
+                                    type="text"
+                                    placeholder=""
+                                    value={puntosPorJugador[doc.id] || ""}
+                                    onChange={(e) => { puntosJugador(e, doc); }}
+                                    className="puntos-palabra"
+                                />
+                                <input type="checkbox"
+                                    className="premio"
+                                    checked={premioPorJugador[doc.id] || false}
+                                    onChange={(e) => manejarCheckbox(doc.id, e.target.checked)}
+                                />
                             </div>
 
                             <div className="cambio-fichas-container">
-                                <button className="cambio-fichas"></button> {/* cambio de color con un click*/}
-                                <button className="cambio-fichas"></button> {/* cambio de color con un click*/}
-                                <button className="cambio-fichas"></button> {/* cambio de color con un click*/}
+                                {[0, 1, 2].map((botonId) => {
+                                    const botonYaClickeado = botonesClickeados[doc.id] && botonesClickeados[doc.id].includes(botonId)
+                                    return (
+                                        <button
+                                            key={botonId}
+                                            className="cambio-fichas"
+                                            disabled={botonYaClickeado}
+                                            onClick={() => { botonCambio(doc.id, botonId); }}
+                                            style={{ backgroundColor: botonYaClickeado ? "red" : "green", }}
+                                        >
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
-                    )
+                    );
                 })
             }
-            {
-                console.log("jugador actualizado es", jugadorActualizado)
-            }
-            {
-                console.log("el valor a sumar es", puntoPalabra)
-            }
-            <button onClick={() => { terminarTurno() }}>Terminar Turno</button> {/* limpia todo menos los puntos y el cambio de ficha, deschequea el box de premio, imprime los turnos abajo*/}
-            <button className="deshacer" type="button" onClick={() => { deshacerPuntos() }}>Deshacer</button> {/* deshacer los puntos*/}
+            <button onClick={terminarTurno}>Terminar Turno</button>
 
-
+            <div>
+                {jugadoresStorage.map((jugador) => {
+                    
+                    const historialJugador = historial.filter((entry) => entry.nombre === jugador.nombre);
+                    if (historialJugador.length === 0) return null; // Si no hay historial para este jugador, no mostramos nada
+                    return (
+                        <div key={jugador.id}>
+                            <h5>{jugador.nombre}</h5> {/* Nombre del jugador, se renderiza solo una vez */}
+                            {historialJugador.map((turno, index) => (
+                                <div key={index}>
+                                    <h6>-</h6>
+                                    <p>Palabra: {turno.palabra}</p>
+                                    <p>Puntos: {turno.puntos}</p>
+                                    {turno.premio && <p>Premio</p>}
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
-    )
-}
+    );
+};
 
-export default Calculadora
+export default Calculadora;
