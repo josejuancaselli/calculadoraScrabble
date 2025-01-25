@@ -29,16 +29,16 @@ const Inicio = () => {
 
     return (
         <div>
-            <form >
+            <form className="formulario">
                 <label >ingrese jugador</label>
-                <input type="text" onChange={nombreJugador} />
-                <button type="button" onClick={() => { jugadorAgregado() }}>agregar</button>
+                <input className="form-jugador" type="text" onChange={nombreJugador} />
+                <button className="boton-jugador" type="button" onClick={() => { jugadorAgregado() }}>agregar</button>
             </form>
 
             {
-                arrayJugadores === null ? <p>no hay jugadores</p> : arrayJugadores.map((el, index) => {return (<h2 key={index}>{el.nombre}</h2>)})
+                arrayJugadores === null ? <p>no hay jugadores</p> : arrayJugadores.map((el, index) => {return (<h2 key={index} className="nombre-jugador-inicio">{el.nombre}</h2>)})
             }
-            <button>
+            <button className="link">
                 <Link to="/calculadora">Empezar</Link>
             </button>
         </div>

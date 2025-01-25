@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Anaheim:wght@400..800&family=Bebas+Neue&display=swap');
+
+* {
+    font-family: 'Anaheim', sans-serif;
+    font-size: 10px;
+}
+
+@media (max-width: 768px) {
+
+    /* Aseguramos que el contenedor principal ocupe toda la pantalla */
+    .app-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        /* El contenedor principal ocupa toda la altura de la pantalla */
+        width: 100vw;
+        /* El contenedor principal ocupa toda la anchura de la pantalla */
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .jugadores-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        /* Centrado de las cards */
+        align-items: stretch;
+        /* Las cards deben estirarse para llenar el espacio */
+        width: 100%;
+        flex-grow: 1;
+        /* Esto hace que ocupe el resto del espacio disponible */
+    }
+
+    .container {
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        transition: box-shadow 0.2s ease-in-out;
+        flex: 1 1 250px;
+        /* Las cards ocupan al menos 250px y pueden crecer según el espacio */
+        margin: 10px;
+        /* Espacio entre las cards */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 35vh;
+        width: 90%;
+        /* Las cards ocupan el 90% del ancho en pantallas pequeñas */
+        max-width: 100%;
+        /* Asegura que se adapten */
+    }
+
+    .container:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .nombre-jugador {
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+    }
+
+    .palabra {
+        width: 80%;
+        /* Ocupa el 80% del ancho de la card */
+        margin: 0 auto;
+        /* Centrado horizontalmente */
+        display: block;
+        /* Para que respete el centrado con margin */
+        padding: 8px 12px;
+        /* Espaciado interno */
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        /* Borde sutil */
+        border-radius: 8px;
+        /* Bordes redondeados */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Relieve ligero */
+        background-color: white;
+        /* Fondo blanco */
+        transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+        font-size: 14px;
+        /* Tamaño de texto óptimo para mobile */
+        outline: none;
+        /* Quita el borde azul por defecto al enfocar */
+    }
+
+    /* Estilo al enfocar el input */
+    .palabra:focus {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        /* Sombra más fuerte */
+        transform: translateY(-2px);
+        /* Leve elevación */
+        border-color: rgba(0, 0, 0, 0.4);
+        /* Resalta el borde */
+    }
+
+    .puntos-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .puntos-premio-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .premio {
+        margin: 0;
+    }
+
+
+
+    .puntos-fichas {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    /* Estilo del input puntos-palabra */
+    .puntos-palabra {
+        width: 50px;
+        /* Tamaño cuadrado */
+        height: 50px;
+        border: 1px solid #ccc;
+        /* Borde suave */
+        border-radius: 8px;
+        /* Bordes redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Relieve */
+        background-color: #f9f9f9;
+        /* Fondo claro */
+        text-align: center;
+        /* Centrar texto */
+        font-size: 20px;
+        /* Tamaño de letra */
+        outline: none;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+        margin-right: 5px;    }
+
+    .puntos-palabra:focus {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        /* Aumentar relieve */
+        transform: scale(1.05);
+        /* Ligero zoom */
+    }
+
+    /* Estilo del checkbox premio */
+    .premio {
+        width: 20px;
+        height: 20px;
+        margin: auto 0;
+        appearance: none;
+        /* Ocultar checkbox estándar */
+        background-color: #f9f9f9;
+        /* Fondo claro */
+        border: 1px solid #ccc;
+        /* Borde */
+        border-radius: 50%;
+        /* Forma circular */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Relieve */
+        cursor: pointer;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .premio:checked {
+        background-color: #4caf50;
+        /* Verde cuando está seleccionado */
+        box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+        /* Relieve más fuerte */
+    }
+
+    .premio:checked::after {
+        content: "✔";
+        /* Marca de check */
+        font-size: 14px;
+        color: white;
+        display: block;
+        text-align: center;
+        line-height: 20px;
+        /* Centrado en el círculo */
+    }
+
+    .cambio-fichas-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin: auto 0;
+    }
+
+    .cambio-fichas {
+        width: 10px;
+        height: 30px;
+        /* Alto mayor que el ancho */
+        background-color: rgb(155 199 145);
+        border: none;
+        border-radius: 3px;
+        /* Bordes redondeados para dar el efecto suave */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* Sombra suave para el efecto de flotado */
+        margin: 0 10px;
+    }
+
+    .cambio-fichas:disabled {
+        background-color: #c58686;
+        /* Color para cuando esté deshabilitado */
+    }
+
+    .puntos-jugador {
+        margin: 0;
+        display: block;
+        /* Asegura que ocupe toda la línea */
+        width: 100%;
+        /* Ocupa todo el ancho de la card */
+        text-align: center;
+        /* Centra el texto */
+        font-size: 24px;
+        /* Tamaño grande para destacar */
+        font-weight: bold;
+        /* Texto en negrita */
+        padding: 12px 0;
+        /* Espaciado interno arriba y abajo */
+        border-radius: 8px;
+        /* Bordes redondeados */
+        background-color: #f0f0f0;
+        /* Fondo neutro temporal */
+        transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .terminar-turno {
+        background-color: black;
+        /* Fondo negro para darle presencia */
+        color: white;
+        /* Texto blanco para alto contraste */
+        font-size: 18px;
+        /* Tamaño de texto grande para que se note */
+        padding: 14px 30px;
+        /* Padding más grande para darle un aspecto robusto */
+        border: none;
+        /* Sin borde para que sea más limpio */
+        border-radius: 8px;
+        /* Bordes redondeados para un toque suave */
+        cursor: pointer;
+        /* Cursor de mano para indicar que es interactivo */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        /* Sombra para dar el efecto de flotado */
+        transition: all 0.3s ease-in-out;
+        /* Transición suave para efectos de hover */
+        display: block;
+        /* Asegura que el botón ocupe toda la línea */
+        margin: 20px auto;
+        /* Centrado y separación con otros elementos */
+        width: 200px;
+        /* Ancho fijo para mayor presencia */
+    }
+
+    .terminar-turno:hover {
+        background-color: #333;
+        /* Cambia a un gris oscuro en hover */
+        transform: translateY(-4px);
+        /* Efecto de elevación al pasar el cursor */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más fuerte en hover */
+    }
+
+    .terminar-turno:active {
+        background-color: #111;
+        /* Fondo aún más oscuro al hacer clic */
+        transform: translateY(2px);
+        /* Efecto de presionar */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        /* Sombra reducida al presionar */
+    }
+
+
+
+    .historial {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    .historial-jugadores {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+
+}

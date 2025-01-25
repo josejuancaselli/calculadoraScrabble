@@ -1,6 +1,8 @@
 import { useState } from "react";
-import "./calculadora.css";
+import "./chatgpt.css";
 import { Link } from "react-router-dom";
+import { IoMdClose } from "react-icons/io";
+import { FaCheck } from "react-icons/fa6";
 
 const Calculadora = () => {
     const [jugadoresStorage, setJugadoresStorage] = useState(JSON.parse(localStorage.getItem("jugadores")) || []);
@@ -9,6 +11,8 @@ const Calculadora = () => {
     const [palabrasPorJugador, setPalabrasPorJugador] = useState({});
     const [historial, setHistorial] = useState([]);
     const [premioPorJugador, setPremioPorJugador] = useState({});
+    const [turnoActual, setTurnoActual] = useState(1);
+    const [historialCambioFichas, setHistorialCambioFichas] = useState([]);
 
     const puntosJugador = (e, jugador) => {
         setPuntosPorJugador({ ...puntosPorJugador, [jugador.id]: e.target.value });
@@ -28,20 +32,25 @@ const Calculadora = () => {
                 puntos: parseInt(puntosPorJugador[jugador.id] || 0),
                 palabra: palabrasPorJugador[jugador.id] || "",
                 premio: premioPorJugador[jugador.id] || false,
+                turno: turnoActual,
             }
-        ))
+        ));
 
         setHistorial([...historial, ...nuevoHistorial]);
         setPuntosPorJugador({});
         setPalabrasPorJugador({});
         setPremioPorJugador({});
-
+        setTurnoActual(turnoActual + 1);
     };
 
     const botonCambio = (jugadorId, botonId) => {
         const botonesDelJugador = botonesClickeados[jugadorId] || [];
         if (!botonesDelJugador.includes(botonId)) {
-            setBotonesClickeados({ ...botonesClickeados, [jugadorId]: [...botonesDelJugador, botonId], });
+            setBotonesClickeados({ ...botonesClickeados, [jugadorId]: [...botonesDelJugador, botonId] });
+            setHistorialCambioFichas([
+                ...historialCambioFichas,
+                { jugadorId, botonId, turno: turnoActual },
+            ]);
         }
     };
 
@@ -51,48 +60,49 @@ const Calculadora = () => {
 
     const palabras = (e, jugador) => {
         setPalabrasPorJugador({ ...palabrasPorJugador, [jugador.id]: e.target.value });
-    }
+    };
 
     const resetearJuego = () => {
-        // Limpiamos localStorage
         localStorage.clear();
-        // Reseteamos los estados
         setJugadoresStorage([]);
         setBotonesClickeados({});
         setPuntosPorJugador({});
         setPalabrasPorJugador({});
         setHistorial([]);
-        console.log("Juego reseteado.");
+        setHistorialCambioFichas([]);
+        setTurnoActual(1);
     };
-
 
     return (
         <div className="app-container">
             <div className="jugadores-container">
-                {
-                    jugadoresStorage.map((doc, index) => {
-                        return (
-                            <div className="container" key={index}>
-                                <h2 className="nombre-jugador">{doc.nombre}</h2> {/* Mostrar nombre del jugador*/}
+                {jugadoresStorage.map((doc, index) => {
+                    return (
+                        <div className="container" key={index}>
 
-                                <input type="text"
-                                    placeholder="Palabra"
-                                    className="palabra"
-                                    value={palabrasPorJugador[doc.id] || ""}
-                                    onChange={(e) => { palabras(e, doc) }}
-                                /> {/* Capturar la palabra*/}
+                            <h2 className="nombre-jugador">{doc.nombre}</h2>
 
-                                <p className="puntos-jugador">{doc.puntos}</p> {/* Mostrar puntos*/}
+                            <input
+                                type="text"
+                                placeholder="Palabra"
+                                className="palabra"
+                                value={palabrasPorJugador[doc.id] || ""}
+                                onChange={(e) => palabras(e, doc)}
+                            />
+
+
+                            <div className="puntos-fichas">
 
                                 <div className="puntos-container">
                                     <input
                                         type="text"
                                         placeholder=""
                                         value={puntosPorJugador[doc.id] || ""}
-                                        onChange={(e) => { puntosJugador(e, doc); }}
+                                        onChange={(e) => puntosJugador(e, doc)}
                                         className="puntos-palabra"
                                     />
-                                    <input type="checkbox"
+                                    <input
+                                        type="checkbox"
                                         className="premio"
                                         checked={premioPorJugador[doc.id] || false}
                                         onChange={(e) => manejarCheckbox(doc.id, e.target.checked)}
@@ -101,52 +111,66 @@ const Calculadora = () => {
 
                                 <div className="cambio-fichas-container">
                                     {[0, 1, 2].map((botonId) => {
-                                        const botonYaClickeado = botonesClickeados[doc.id] && botonesClickeados[doc.id].includes(botonId)
+                                        const botonYaClickeado =
+                                            botonesClickeados[doc.id] &&
+                                            botonesClickeados[doc.id].includes(botonId);
                                         return (
                                             <button
                                                 key={botonId}
                                                 className="cambio-fichas"
                                                 disabled={botonYaClickeado}
-                                                onClick={() => { botonCambio(doc.id, botonId); }}
-                                                style={{ backgroundColor: botonYaClickeado ? "red" : "green", }}
-                                            >
-                                            </button>
+                                                onClick={() => botonCambio(doc.id, botonId)}
+
+                                            />
                                         );
                                     })}
                                 </div>
+
                             </div>
-                        );
-                    })
-                }
-            </div>
-
-            <button onClick={terminarTurno}>Terminar Turno</button>
-
-
-            <div className="historial">
-                {jugadoresStorage.map((jugador) => {
-
-                    const historialJugador = historial.filter((entry) => entry.nombre === jugador.nombre);
-                    if (historialJugador.length === 0) return null; // Si no hay historial para este jugador, no mostramos nada
-                    return (
-                        <div key={jugador.id}>
-                            <h5>{jugador.nombre}</h5> {/* Nombre del jugador, se renderiza solo una vez */}
-                            {historialJugador.map((turno, index) => (
-                                <div key={index} className="detalle-historial">
-                                    <h6>--------</h6>
-                                    <div className="punto-palabra">
-                                        <p>Palabra: {turno.palabra}</p>
-                                        <p>Puntos: {turno.puntos}</p>
-                                        {turno.premio && <p>Premio</p>}
-                                    </div>
-
-                                </div>
-                            ))}
+                            <p className="puntos-jugador">{doc.puntos}</p>
                         </div>
                     );
                 })}
             </div>
-            <button onClick={resetearJuego}>Reiniciar Juego</button>
+
+            <button onClick={terminarTurno} className="terminar-turno">Terminar Turno</button>
+
+            <div className="historial">
+                <div className="historial-jugadores">
+                    {jugadoresStorage.map((jugador) => {
+                        const historialJugador = historial.filter(
+                            (entry) => entry.nombre === jugador.nombre
+                        );
+                        if (historialJugador.length === 0) return null;
+                        return (
+                            <div key={jugador.id} >
+                                <h5>{jugador.nombre}</h5>
+                                {historialJugador.map((turno, index) => (
+                                    <div key={index} className="detalle-historial">
+                                        <h6>--------</h6>
+                                        <div className="punto-palabra">
+                                            <p>Turno: {turno.turno}</p>
+                                            <p>Palabra: {turno.palabra}</p>
+                                            <p>Puntos: {turno.puntos}</p>
+                                            {turno.premio ? <p>Premio: <FaCheck style={{ color: "green" }} /> </p> : <p>Premio: <IoMdClose style={{ color: "red" }} /></p>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div className="historial-cambio">
+                    <h3>Historial de cambios de fichas</h3>
+                    {historialCambioFichas.map((entry, index) => (
+                        <p key={index}>
+                            Jugador: {jugadoresStorage.find((j) => j.id === entry.jugadorId)?.nombre} - turno {entry.turno} </p>
+                    ))}
+                </div>
+
+            </div>
+            <button onClick={resetearJuego}> Reinciar</button>
             <Link to="/">Inicio</Link>
         </div>
     );

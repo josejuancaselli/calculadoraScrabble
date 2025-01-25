@@ -124,9 +124,14 @@
 
 .historial{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-evenly   ;
 }
 
+.historial-jugadores{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
     
 }
